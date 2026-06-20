@@ -3,6 +3,7 @@ import { useAuth }                from '../context/AuthContext'
 import { PageLoader }             from '../components/ui/Loader'
 import { AdminSidebar }           from '../components/admin/AdminSidebar'
 import { SiteSettingsManager }    from '../components/admin/SiteSettingsManager'
+import { ContactSettings }        from '../components/admin/ContactSettings'
 import { DashboardHome }          from '../components/admin/DashboardHome'
 import { GalleryManager }         from '../components/admin/GalleryManager'
 import { StaffManager }           from '../components/admin/StaffManager'
@@ -40,9 +41,10 @@ export function AdminDashboardPage() {
         <AdminTopbar />
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           <Routes>
-            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route index               element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard"    element={<DashboardHome />} />
             <Route path="settings"     element={<SiteSettingsManager />} />
+            <Route path="contact"      element={<ContactSettings />} />
             <Route path="gallery"      element={<GalleryManager />} />
             <Route path="staff"        element={<StaffManager />} />
             <Route path="form-builder" element={<FormBuilder />} />

@@ -1,9 +1,9 @@
 -- ============================================================
--- Green Valley Foundation — Supabase Schema
--- Run this entire file in your Supabase SQL Editor
+-- Green Valley Foundation — Supabase Schema (Safe Re-run Edition)
+-- Run this entire file in your Supabase SQL Editor safely
 -- ============================================================
 
--- Gallery table
+-- 1. TABLES (Safe with if not exists)
 create table if not exists gallery (
   id          uuid default gen_random_uuid() primary key,
   url         text not null,
@@ -11,7 +11,6 @@ create table if not exists gallery (
   created_at  timestamptz default now()
 );
 
--- Staff table
 create table if not exists staff (
   id            uuid default gen_random_uuid() primary key,
   name          text not null,
@@ -22,7 +21,6 @@ create table if not exists staff (
   created_at    timestamptz default now()
 );
 
--- Reviews table
 create table if not exists reviews (
   id          uuid default gen_random_uuid() primary key,
   name        text not null,
@@ -32,7 +30,6 @@ create table if not exists reviews (
   created_at  timestamptz default now()
 );
 
--- Enquiries (contact form submissions)
 create table if not exists enquiries (
   id            uuid default gen_random_uuid() primary key,
   name          text not null,
@@ -44,7 +41,6 @@ create table if not exists enquiries (
   created_at    timestamptz default now()
 );
 
--- Achievements / milestones
 create table if not exists achievements (
   id            uuid default gen_random_uuid() primary key,
   icon          text default 'Trophy',
@@ -54,7 +50,6 @@ create table if not exists achievements (
   display_order int  default 0
 );
 
--- Dynamic form questions
 create table if not exists form_questions (
   id            uuid default gen_random_uuid() primary key,
   form_type     text not null check (form_type in ('inpatient', 'outpatient', 'followup')),
@@ -66,7 +61,6 @@ create table if not exists form_questions (
   created_at    timestamptz default now()
 );
 
--- Form submissions
 create table if not exists form_submissions (
   id            uuid default gen_random_uuid() primary key,
   form_type     text not null,
@@ -74,17 +68,15 @@ create table if not exists form_submissions (
   submitted_at  timestamptz default now()
 );
 
--- Site settings (key-value store for editable public content)
 create table if not exists site_settings (
-  key         text primary key,
-  value       text,
-  updated_at  timestamptz default now()
+  key           text primary key,
+  value         text,
+  updated_at    timestamptz default now()
 );
 
 -- ============================================================
 -- Row Level Security (RLS)
 -- ============================================================
-
 alter table gallery          enable row level security;
 alter table staff            enable row level security;
 alter table reviews          enable row level security;
@@ -94,37 +86,109 @@ alter table form_questions   enable row level security;
 alter table form_submissions enable row level security;
 alter table site_settings    enable row level security;
 
--- PUBLIC READ policies (for public site)
-create policy "Public can read gallery"        on gallery          for select using (true);
-create policy "Public can read staff"          on staff            for select using (true);
-create policy "Public can read approved reviews" on reviews        for select using (approved = true);
-create policy "Public can read achievements"   on achievements     for select using (true);
-create policy "Public can read form questions" on form_questions   for select using (true);
-create policy "Public can read site settings"  on site_settings   for select using (true);
+-- ============================================================
+-- SAFE CONDITIONAL POLICIES 
+-- (Checks if a policy exists before attempting to create it)
+-- ============================================================
+do $$
+begin
+    -- PUBLIC READ policies
+    if not exists (select 1 from pg_policies where policyname = 'Public can read gallery' and tablename = 'gallery') then
+        create policy "Public can read gallery" on gallery for select using (true);
+    end if;
 
--- PUBLIC WRITE policies (form submissions, reviews, enquiries)
-create policy "Public can submit enquiries"    on enquiries        for insert with check (true);
-create policy "Public can submit reviews"      on reviews          for insert with check (true);
-create policy "Public can submit forms"        on form_submissions for insert with check (true);
+    if not exists (select 1 from pg_policies where policyname = 'Public can read staff' and tablename = 'staff') then
+        create policy "Public can read staff" on staff for select using (true);
+    end if;
 
--- AUTHENTICATED (Admin) — full access to everything
-create policy "Admin full access gallery"       on gallery          for all using (auth.role() = 'authenticated');
-create policy "Admin full access staff"         on staff            for all using (auth.role() = 'authenticated');
-create policy "Admin full access reviews"       on reviews          for all using (auth.role() = 'authenticated');
-create policy "Admin full access enquiries"     on enquiries        for all using (auth.role() = 'authenticated');
-create policy "Admin full access achievements"  on achievements     for all using (auth.role() = 'authenticated');
-create policy "Admin full access form_questions" on form_questions  for all using (auth.role() = 'authenticated');
-create policy "Admin full access submissions"   on form_submissions for all using (auth.role() = 'authenticated');
-create policy "Admin full access site_settings" on site_settings    for all using (auth.role() = 'authenticated');
+    if not exists (select 1 from pg_policies where policyname = 'Public can read approved reviews' and tablename = 'reviews') then
+        create policy "Public can read approved reviews" on reviews for select using (approved = true);
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Public can read achievements' and tablename = 'achievements') then
+        create policy "Public can read achievements" on achievements for select using (true);
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Public can read form questions' and tablename = 'form_questions') then
+        create policy "Public can read form questions" on form_questions for select using (true);
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Public can read site settings' and tablename = 'site_settings') then
+        create policy "Public can read site settings" on site_settings for select using (true);
+    end if;
+
+    -- PUBLIC WRITE policies
+    if not exists (select 1 from pg_policies where policyname = 'Public can submit enquiries' and tablename = 'enquiries') then
+        create policy "Public can submit enquiries" on enquiries for insert with check (true);
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Public can submit reviews' and tablename = 'reviews') then
+        create policy "Public can submit reviews" on reviews for insert with check (true);
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Public can submit forms' and tablename = 'form_submissions') then
+        create policy "Public can submit forms" on form_submissions for insert with check (true);
+    end if;
+
+    -- AUTHENTICATED (Admin) policies
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access gallery' and tablename = 'gallery') then
+        create policy "Admin full access gallery" on gallery for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access staff' and tablename = 'staff') then
+        create policy "Admin full access staff" on staff for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access reviews' and tablename = 'reviews') then
+        create policy "Admin full access reviews" on reviews for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access enquiries' and tablename = 'enquiries') then
+        create policy "Admin full access enquiries" on enquiries for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access achievements' and tablename = 'achievements') then
+        create policy "Admin full access achievements" on achievements for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access form_questions' and tablename = 'form_questions') then
+        create policy "Admin full access form_questions" on form_questions for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access submissions' and tablename = 'form_submissions') then
+        create policy "Admin full access submissions" on form_submissions for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access site_settings' and tablename = 'site_settings') then
+        create policy "Admin full access site_settings" on site_settings for all using (auth.role() = 'authenticated');
+    end if;
+end
+$$;
 
 -- ============================================================
--- Seed default achievements (optional)
+-- Seed default achievements safely (Uses a temporary unique constraint check)
 -- ============================================================
-insert into achievements (icon, value, title, description, display_order) values
-  ('Users',  '2000+', 'Patients Treated',     'Individuals successfully treated across all programs', 0),
-  ('Clock',  '15+',   'Years of Service',      'Consistently delivering quality addiction care', 1),
-  ('Heart',  '98%',   'Recovery Success Rate', 'Of our patients maintain sobriety after 1 year', 2),
-  ('Award',  '12',    'Awards Won',            'Regional and national recognition for excellence', 3),
-  ('Users',  '50+',   'Expert Staff',          'Certified counselors, doctors and therapists', 4),
-  ('Star',   '4.9/5', 'Patient Satisfaction',  'Average rating from patient feedback surveys', 5)
-on conflict do nothing;
+-- We add a unique constraint on 'title' temporarily or handle it directly to avoid duplicate seed rows
+insert into achievements (icon, value, title, description, display_order) 
+select 'Users',  '2000+', 'Patients Treated',     'Individuals successfully treated across all programs', 0
+where not exists (select 1 from achievements where title = 'Patients Treated');
+
+insert into achievements (icon, value, title, description, display_order) 
+select 'Clock',  '15+',   'Years of Service',      'Consistently delivering quality addiction care', 1
+where not exists (select 1 from achievements where title = 'Years of Service');
+
+insert into achievements (icon, value, title, description, display_order) 
+select 'Heart',  '98%',   'Recovery Success Rate', 'Of our patients maintain sobriety after 1 year', 2
+where not exists (select 1 from achievements where title = 'Recovery Success Rate');
+
+insert into achievements (icon, value, title, description, display_order) 
+select 'Award',  '12',    'Awards Won',            'Regional and national recognition for excellence', 3
+where not exists (select 1 from achievements where title = 'Awards Won');
+
+insert into achievements (icon, value, title, description, display_order) 
+select 'Users',  '50+',   'Expert Staff',          'Certified counselors, doctors and therapists', 4
+where not exists (select 1 from achievements where title = 'Expert Staff');
+
+insert into achievements (icon, value, title, description, display_order) 
+select 'Star',   '4.9/5', 'Patient Satisfaction',  'Average rating from patient feedback surveys', 5
+where not exists (select 1 from achievements where title = 'Patient Satisfaction');

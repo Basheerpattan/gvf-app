@@ -4,20 +4,41 @@ import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 import {
   LayoutDashboard, Image, Users, FileText, MessageSquare, Mail,
-  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings
+  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings, Phone
 } from 'lucide-react'
 
-const navItems = [
-  { to: '/admin/dashboard',     icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/settings',      icon: Settings,        label: 'Site Settings' },
-  { to: '/admin/gallery',       icon: Image,           label: 'Gallery' },
-  { to: '/admin/staff',         icon: Users,           label: 'Staff' },
-  { to: '/admin/form-builder',  icon: FileText,        label: 'Form Builder' },
-  { to: '/admin/submissions',   icon: FileText,        label: 'Submissions' },
-  { to: '/admin/enquiries',     icon: Mail,            label: 'Enquiries' },
-  { to: '/admin/reviews',       icon: MessageSquare,   label: 'Reviews' },
-  { to: '/admin/achievements',  icon: Trophy,          label: 'Achievements' },
-  { to: '/admin/cctv',          icon: Video,           label: 'CCTV Monitor' },
+const navGroups = [
+  {
+    label: 'Overview',
+    items: [
+      { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { to: '/admin/settings',       icon: Settings,      label: 'Site Settings'  },
+      { to: '/admin/contact',        icon: Phone,         label: 'Contact Details' },
+      { to: '/admin/gallery',        icon: Image,         label: 'Gallery'         },
+      { to: '/admin/staff',          icon: Users,         label: 'Staff'           },
+      { to: '/admin/achievements',   icon: Trophy,        label: 'Achievements'    },
+    ],
+  },
+  {
+    label: 'Forms & Enquiries',
+    items: [
+      { to: '/admin/form-builder',   icon: FileText,      label: 'Form Builder'   },
+      { to: '/admin/submissions',    icon: FileText,      label: 'Submissions'    },
+      { to: '/admin/enquiries',      icon: Mail,          label: 'Enquiries'      },
+    ],
+  },
+  {
+    label: 'Community',
+    items: [
+      { to: '/admin/reviews',        icon: MessageSquare, label: 'Reviews'        },
+      { to: '/admin/cctv',           icon: Video,         label: 'CCTV Monitor'   },
+    ],
+  },
 ]
 
 export function AdminSidebar() {
@@ -53,22 +74,31 @@ export function AdminSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 overflow-y-auto">
-        {navItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 mx-2 rounded-xl mb-1 text-sm font-medium transition-all group ${
-                isActive
-                  ? 'bg-emerald-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <Icon size={18} className="shrink-0" />
-            {!collapsed && <span>{label}</span>}
-          </NavLink>
+      <nav className="flex-1 py-3 overflow-y-auto">
+        {navGroups.map(group => (
+          <div key={group.label} className="mb-2">
+            {!collapsed && (
+              <p className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-600 uppercase tracking-widest">
+                {group.label}
+              </p>
+            )}
+            {group.items.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl mb-0.5 text-sm font-medium transition-all ${
+                    isActive
+                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`
+                }
+              >
+                <Icon size={17} className="shrink-0" />
+                {!collapsed && <span>{label}</span>}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 
