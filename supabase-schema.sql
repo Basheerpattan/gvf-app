@@ -74,6 +74,13 @@ create table if not exists form_submissions (
   submitted_at  timestamptz default now()
 );
 
+-- Site settings (key-value store for editable public content)
+create table if not exists site_settings (
+  key         text primary key,
+  value       text,
+  updated_at  timestamptz default now()
+);
+
 -- ============================================================
 -- Row Level Security (RLS)
 -- ============================================================
@@ -85,27 +92,30 @@ alter table enquiries        enable row level security;
 alter table achievements     enable row level security;
 alter table form_questions   enable row level security;
 alter table form_submissions enable row level security;
+alter table site_settings    enable row level security;
 
 -- PUBLIC READ policies (for public site)
-create policy "Public can read gallery"       on gallery          for select using (true);
-create policy "Public can read staff"         on staff            for select using (true);
-create policy "Public can read approved reviews" on reviews       for select using (approved = true);
-create policy "Public can read achievements"  on achievements     for select using (true);
-create policy "Public can read form questions" on form_questions  for select using (true);
+create policy "Public can read gallery"        on gallery          for select using (true);
+create policy "Public can read staff"          on staff            for select using (true);
+create policy "Public can read approved reviews" on reviews        for select using (approved = true);
+create policy "Public can read achievements"   on achievements     for select using (true);
+create policy "Public can read form questions" on form_questions   for select using (true);
+create policy "Public can read site settings"  on site_settings   for select using (true);
 
 -- PUBLIC WRITE policies (form submissions, reviews, enquiries)
-create policy "Public can submit enquiries"   on enquiries        for insert with check (true);
-create policy "Public can submit reviews"     on reviews          for insert with check (true);
-create policy "Public can submit forms"       on form_submissions for insert with check (true);
+create policy "Public can submit enquiries"    on enquiries        for insert with check (true);
+create policy "Public can submit reviews"      on reviews          for insert with check (true);
+create policy "Public can submit forms"        on form_submissions for insert with check (true);
 
 -- AUTHENTICATED (Admin) — full access to everything
-create policy "Admin full access gallery"     on gallery          for all using (auth.role() = 'authenticated');
-create policy "Admin full access staff"       on staff            for all using (auth.role() = 'authenticated');
-create policy "Admin full access reviews"     on reviews          for all using (auth.role() = 'authenticated');
-create policy "Admin full access enquiries"   on enquiries        for all using (auth.role() = 'authenticated');
-create policy "Admin full access achievements" on achievements    for all using (auth.role() = 'authenticated');
-create policy "Admin full access form_questions" on form_questions for all using (auth.role() = 'authenticated');
-create policy "Admin full access submissions" on form_submissions for all using (auth.role() = 'authenticated');
+create policy "Admin full access gallery"       on gallery          for all using (auth.role() = 'authenticated');
+create policy "Admin full access staff"         on staff            for all using (auth.role() = 'authenticated');
+create policy "Admin full access reviews"       on reviews          for all using (auth.role() = 'authenticated');
+create policy "Admin full access enquiries"     on enquiries        for all using (auth.role() = 'authenticated');
+create policy "Admin full access achievements"  on achievements     for all using (auth.role() = 'authenticated');
+create policy "Admin full access form_questions" on form_questions  for all using (auth.role() = 'authenticated');
+create policy "Admin full access submissions"   on form_submissions for all using (auth.role() = 'authenticated');
+create policy "Admin full access site_settings" on site_settings    for all using (auth.role() = 'authenticated');
 
 -- ============================================================
 -- Seed default achievements (optional)

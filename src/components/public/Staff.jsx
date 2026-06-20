@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useSiteSettings } from '../../hooks/useSiteSettings'
 import { User } from 'lucide-react'
 
 export function Staff() {
+  const { settings } = useSiteSettings()
   const [staff, setStaff] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -15,13 +17,13 @@ export function Staff() {
     <section id="team" className="py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <span className="inline-block text-emerald-600 font-semibold text-sm tracking-widest uppercase mb-4">Our Team</span>
+          <span className="inline-block text-emerald-600 font-semibold text-sm tracking-widest uppercase mb-4">
+            {settings.staff_badge}
+          </span>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-slate-800 mb-4">
-            Meet the Healers
+            {settings.staff_title}
           </h2>
-          <p className="text-slate-500 max-w-xl mx-auto">
-            Our dedicated team of certified professionals brings compassion and expertise to every patient's journey.
-          </p>
+          <p className="text-slate-500 max-w-xl mx-auto">{settings.staff_desc}</p>
         </div>
 
         {loading ? (

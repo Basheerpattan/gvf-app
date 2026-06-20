@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth }                from '../context/AuthContext'
 import { PageLoader }             from '../components/ui/Loader'
 import { AdminSidebar }           from '../components/admin/AdminSidebar'
+import { SiteSettingsManager }    from '../components/admin/SiteSettingsManager'
 import { DashboardHome }          from '../components/admin/DashboardHome'
 import { GalleryManager }         from '../components/admin/GalleryManager'
 import { StaffManager }           from '../components/admin/StaffManager'
@@ -41,6 +42,7 @@ export function AdminDashboardPage() {
           <Routes>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard"    element={<DashboardHome />} />
+            <Route path="settings"     element={<SiteSettingsManager />} />
             <Route path="gallery"      element={<GalleryManager />} />
             <Route path="staff"        element={<StaffManager />} />
             <Route path="form-builder" element={<FormBuilder />} />

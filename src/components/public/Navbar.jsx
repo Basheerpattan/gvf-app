@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, Leaf } from 'lucide-react'
+import { useSiteSettings } from '../../hooks/useSiteSettings'
 
 const navLinks = [
   { label: 'Home',         href: '#home' },
@@ -16,6 +17,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
+  const { settings } = useSiteSettings()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -26,8 +28,7 @@ export function Navbar() {
   const scrollTo = (e, href) => {
     e.preventDefault()
     setOpen(false)
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const isHome = location.pathname === '/'
@@ -35,15 +36,20 @@ export function Navbar() {
   return (
     <header className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${scrolled || !isHome ? 'bg-white/95 backdrop-blur shadow-md' : 'bg-transparent'}`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
+
+        {/* Brand */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:bg-emerald-700 transition-colors">
             <Leaf size={20} className="text-white" />
           </div>
           <span className={`font-display font-bold text-lg leading-tight transition-colors ${scrolled || !isHome ? 'text-slate-800' : 'text-white'}`}>
-            Green Valley<br /><span className="text-emerald-500 font-semibold text-sm">Foundation</span>
+            {settings.navbar_org_name}
+            <br />
+            <span className="text-emerald-500 font-semibold text-sm">{settings.navbar_tagline}</span>
           </span>
         </Link>
 
+        {/* Desktop nav links (home only) */}
         {isHome && (
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map(link => (
@@ -66,7 +72,7 @@ export function Navbar() {
               onClick={e => scrollTo(e, '#contact')}
               className="hidden lg:inline-flex items-center px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-200"
             >
-              Get Help Now
+              {settings.navbar_cta_text}
             </a>
           )}
           <Link
@@ -83,6 +89,7 @@ export function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile menu */}
       {open && isHome && (
         <div className="lg:hidden bg-white border-t border-slate-100 shadow-xl">
           {navLinks.map(link => (
@@ -95,8 +102,12 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
-          <a href="#contact" onClick={e => scrollTo(e, '#contact')} className="block mx-4 my-3 px-5 py-3 bg-emerald-600 text-white font-semibold rounded-xl text-center">
-            Get Help Now
+          <a
+            href="#contact"
+            onClick={e => scrollTo(e, '#contact')}
+            className="block mx-4 my-3 px-5 py-3 bg-emerald-600 text-white font-semibold rounded-xl text-center"
+          >
+            {settings.navbar_cta_text}
           </a>
         </div>
       )}

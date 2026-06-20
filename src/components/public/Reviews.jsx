@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useSiteSettings } from '../../hooks/useSiteSettings'
 import { StarRating } from '../ui/StarRating'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -12,6 +13,7 @@ const fallbackReviews = [
 ]
 
 export function Reviews() {
+  const { settings } = useSiteSettings()
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -28,7 +30,7 @@ export function Reviews() {
     setSubmitting(true)
     const { error } = await supabase.from('reviews').insert({ ...data, rating, approved: false })
     setSubmitting(false)
-    if (error) { toast.error('Failed to submit review. Please try again.'); return }
+    if (error) { toast.error('Failed to submit. Please try again.'); return }
     toast.success('Thank you! Your review will appear after approval.')
     setSubmitted(true)
     reset()
@@ -41,11 +43,13 @@ export function Reviews() {
     <section id="reviews" className="py-20 lg:py-28 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <span className="inline-block text-emerald-600 font-semibold text-sm tracking-widest uppercase mb-4">Testimonials</span>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl text-slate-800 mb-4">What Families Say</h2>
-          <p className="text-slate-500 max-w-xl mx-auto">
-            Real stories from patients and families who trusted Green Valley Foundation with their recovery.
-          </p>
+          <span className="inline-block text-emerald-600 font-semibold text-sm tracking-widest uppercase mb-4">
+            {settings.reviews_badge}
+          </span>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-slate-800 mb-4">
+            {settings.reviews_title}
+          </h2>
+          <p className="text-slate-500 max-w-xl mx-auto">{settings.reviews_desc}</p>
         </div>
 
         {/* Reviews grid */}
@@ -72,7 +76,7 @@ export function Reviews() {
             <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
               <MessageSquare size={20} className="text-emerald-700" />
             </div>
-            <h3 className="font-display font-bold text-xl text-slate-800">Share Your Experience</h3>
+            <h3 className="font-display font-bold text-xl text-slate-800">{settings.reviews_form_title}</h3>
           </div>
 
           {submitted ? (
@@ -89,7 +93,7 @@ export function Reviews() {
                 <label className="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
                 <input
                   {...register('name', { required: 'Name is required' })}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                   placeholder="Enter your name"
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -101,9 +105,9 @@ export function Reviews() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Your Review</label>
                 <textarea
-                  {...register('review', { required: 'Review is required', minLength: { value: 20, message: 'Please write at least 20 characters' } })}
+                  {...register('review', { required: 'Review is required', minLength: { value: 20, message: 'At least 20 characters' } })}
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm resize-none"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
                   placeholder="Share your experience with Green Valley Foundation..."
                 />
                 {errors.review && <p className="text-red-500 text-xs mt-1">{errors.review.message}</p>}

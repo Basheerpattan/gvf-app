@@ -4,11 +4,12 @@ import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 import {
   LayoutDashboard, Image, Users, FileText, MessageSquare, Mail,
-  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Menu
+  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings
 } from 'lucide-react'
 
 const navItems = [
   { to: '/admin/dashboard',     icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/admin/settings',      icon: Settings,        label: 'Site Settings' },
   { to: '/admin/gallery',       icon: Image,           label: 'Gallery' },
   { to: '/admin/staff',         icon: Users,           label: 'Staff' },
   { to: '/admin/form-builder',  icon: FileText,        label: 'Form Builder' },

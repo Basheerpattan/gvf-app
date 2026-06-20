@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { supabase } from '../../lib/supabase'
+import { useSiteSettings } from '../../hooks/useSiteSettings'
 import toast from 'react-hot-toast'
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from 'lucide-react'
 
-const contacts = [
-  { icon: Phone,   label: 'Helpline',  value: '+91 98765 43210', sub: '24/7 Crisis Support' },
-  { icon: Mail,    label: 'Email',     value: 'care@greenvalley.org', sub: 'Respond within 4 hours' },
-  { icon: MapPin,  label: 'Address',   value: '45, Green Valley Road, Hyderabad – 500 001', sub: 'Telangana, India' },
-  { icon: Clock,   label: 'Hours',     value: 'Open 24 Hours, 7 Days', sub: 'Including holidays' },
-]
-
 export function Contact() {
+  const { settings } = useSiteSettings()
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
+
+  const contacts = [
+    { icon: Phone,  label: 'Helpline', value: settings.contact_phone,   sub: settings.contact_phone_sub },
+    { icon: Mail,   label: 'Email',    value: settings.contact_email,   sub: settings.contact_email_sub },
+    { icon: MapPin, label: 'Address',  value: settings.contact_address, sub: settings.contact_address_sub },
+    { icon: Clock,  label: 'Hours',    value: settings.contact_hours,   sub: settings.contact_hours_sub },
+  ]
 
   const onSubmit = async (data) => {
     setSubmitting(true)
@@ -32,10 +34,10 @@ export function Contact() {
         <div className="text-center mb-14">
           <span className="inline-block text-emerald-600 font-semibold text-sm tracking-widest uppercase mb-4">Contact Us</span>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-slate-800 mb-4">
-            Take the First Step Today
+            {settings.contact_section_title}
           </h2>
           <p className="text-slate-500 max-w-xl mx-auto">
-            Reaching out is the bravest thing you can do. Our team is here to help, 24/7, with complete confidentiality.
+            {settings.contact_section_desc}
           </p>
         </div>
 
@@ -55,13 +57,28 @@ export function Contact() {
               ))}
             </div>
 
-            {/* Google Maps embed placeholder */}
-            <div className="bg-slate-100 rounded-2xl overflow-hidden h-64 flex items-center justify-center">
-              <div className="text-center text-slate-400">
-                <MapPin size={36} className="mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Interactive map will load here</p>
-                <p className="text-xs mt-1">45, Green Valley Road, Hyderabad</p>
-              </div>
+            {/* Google Maps embed or placeholder */}
+            <div className="rounded-2xl overflow-hidden h-64 bg-slate-100">
+              {settings.contact_map_url ? (
+                <iframe
+                  src={settings.contact_map_url}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Location Map"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                  <div className="text-center">
+                    <MapPin size={36} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Interactive map will load here</p>
+                    <p className="text-xs mt-1">{settings.contact_address}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -95,14 +112,13 @@ export function Contact() {
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">Phone Number <span className="text-red-500">*</span></label>
                     <input
                       type="tel"
-                      {...register('phone', { required: 'Required', pattern: { value: /^[6-9]\d{9}$/, message: 'Enter valid 10-digit number' } })}
+                      {...register('phone', { required: 'Required' })}
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      placeholder="10-digit mobile number"
+                      placeholder="Mobile number"
                     />
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
                   <input
@@ -112,7 +128,6 @@ export function Contact() {
                     placeholder="Optional"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Type of Enquiry</label>
                   <select
@@ -126,7 +141,6 @@ export function Contact() {
                     <option value="general">General Information</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Your Message <span className="text-red-500">*</span></label>
                   <textarea
@@ -137,7 +151,6 @@ export function Contact() {
                   />
                   {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message.message}</p>}
                 </div>
-
                 <button
                   type="submit"
                   disabled={submitting}
@@ -146,7 +159,6 @@ export function Contact() {
                   <Send size={16} />
                   {submitting ? 'Sending...' : 'Send Enquiry'}
                 </button>
-
                 <p className="text-xs text-slate-400 text-center">
                   Your information is kept strictly confidential. We will never share your details.
                 </p>
