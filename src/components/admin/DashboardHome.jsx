@@ -32,11 +32,11 @@ export function DashboardHome() {
   }, [])
 
   const statCards = [
-    { label: 'Gallery Images',     value: stats.gallery,     icon: Image,          color: 'bg-blue-50 text-blue-700',    link: '/admin/gallery' },
-    { label: 'Staff Members',      value: stats.staff,       icon: Users,          color: 'bg-emerald-50 text-emerald-700', link: '/admin/staff' },
-    { label: 'Enquiries',          value: stats.enquiries,   icon: Mail,           color: 'bg-amber-50 text-amber-700',  link: '/admin/enquiries' },
-    { label: 'Reviews',            value: stats.reviews,     icon: MessageSquare,  color: 'bg-purple-50 text-purple-700', link: '/admin/reviews' },
-    { label: 'Form Submissions',   value: stats.submissions, icon: FileText,       color: 'bg-rose-50 text-rose-700',    link: '/admin/submissions' },
+    { label: 'Gallery Images',     value: stats.gallery,     icon: Image,          color: 'bg-blue-50 text-blue-700',       link: '/admin/dashboard/gallery' },
+    { label: 'Staff Members',      value: stats.staff,       icon: Users,          color: 'bg-emerald-50 text-emerald-700', link: '/admin/dashboard/staff' },
+    { label: 'Enquiries',          value: stats.enquiries,   icon: Mail,           color: 'bg-amber-50 text-amber-700',     link: '/admin/dashboard/enquiries' },
+    { label: 'Reviews',            value: stats.reviews,     icon: MessageSquare,  color: 'bg-purple-50 text-purple-700',   link: '/admin/dashboard/reviews' },
+    { label: 'Form Submissions',   value: stats.submissions, icon: FileText,       color: 'bg-rose-50 text-rose-700',       link: '/admin/dashboard/submissions' },
   ]
 
   return (
@@ -64,7 +64,7 @@ export function DashboardHome() {
             <TrendingUp size={18} className="text-emerald-600" />
             Recent Enquiries
           </h2>
-          <Link to="/admin/enquiries" className="text-sm text-emerald-600 hover:underline">View all</Link>
+          <Link to="/admin/dashboard/enquiries" className="text-sm text-emerald-600 hover:underline">View all</Link>
         </div>
         {recentEnquiries.length === 0 ? (
           <p className="text-slate-400 text-sm text-center py-8">No enquiries yet.</p>

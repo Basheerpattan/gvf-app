@@ -5,31 +5,55 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [role, setRole] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const fetchRole = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle()
+      
+      if (error) throw error
+      setRole(data?.role || 'staff')
+    } catch (err) {
+      console.error("Error fetching role:", err.message)
+      setRole('staff')
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
+      if (currentUser) fetchRole(currentUser.id)
       setLoading(false)
     })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
+      if (currentUser) fetchRole(currentUser.id)
+      else setRole(null)
     })
+
     return () => subscription.unsubscribe()
   }, [])
 
   const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password })
-  const signOut = () => supabase.auth.signOut()
+  const signOut = async () => {
+    setRole(null)
+    setUser(null)
+    return await supabase.auth.signOut()
+  }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, role, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
-}
+export const useAuth = () => useContext(AuthContext)
