@@ -8,7 +8,7 @@ export function About() {
 
   const values = [
     { icon: iconMap[settings.about_value_1_icon] || Heart,        title: settings.about_value_1_title, desc: settings.about_value_1_desc },
-    { icon: iconMap[settings.about_value_2_icon] || Shield,       title: settings.about_value_2_title, desc: settings.about_value_2_desc },
+    { icon: iconMap[settings.about_value_2_icon] || Shield,        title: settings.about_value_2_title, desc: settings.about_value_2_desc },
     { icon: iconMap[settings.about_value_3_icon] || Users,        title: settings.about_value_3_title, desc: settings.about_value_3_desc },
     { icon: iconMap[settings.about_value_4_icon] || CheckCircle,  title: settings.about_value_4_title, desc: settings.about_value_4_desc },
   ]
@@ -18,20 +18,24 @@ export function About() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
 
-          {/* Left: image or illustrated placeholder */}
+          {/* Left: Image or placeholder */}
           <div className="relative order-2 lg:order-1">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 aspect-[4/3]">
               {settings.about_image_url ? (
-                <img src={settings.about_image_url} alt="About" className="w-full h-full object-cover" />
+                <img 
+                  src={settings.about_image_url} 
+                  alt="About" 
+                  className="w-full h-full object-cover" 
+                />
               ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-emerald-300">
+                <div className="absolute inset-0 flex items-center justify-center text-emerald-300">
                   <svg viewBox="0 0 200 200" className="w-48 h-48 opacity-40">
                     <path fill="currentColor" d="M100,10 C60,10 20,50 20,100 C20,150 60,190 100,190 C140,190 180,150 180,100 C180,50 140,10 100,10 Z M100,30 C130,30 155,55 160,85 C145,75 125,70 100,75 C75,70 55,75 40,85 C45,55 70,30 100,30 Z" />
                   </svg>
-                  <p className="text-emerald-500 font-medium mt-2 text-sm">Our Healing Center</p>
                 </div>
               )}
             </div>
+            
             {/* Floating stat cards */}
             <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-xl p-5 border border-emerald-50">
               <div className="text-3xl font-bold text-emerald-600 font-display">{settings.about_stat_years_value}</div>
@@ -43,7 +47,7 @@ export function About() {
             </div>
           </div>
 
-          {/* Right: content */}
+          {/* Right: Content */}
           <div className="order-1 lg:order-2">
             <span className="inline-block text-emerald-600 font-semibold text-sm tracking-widest uppercase mb-4">
               {settings.about_section_badge}
