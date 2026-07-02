@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Video, Settings, Wifi, WifiOff, ExternalLink, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -9,10 +9,23 @@ const defaultCameras = [
   { id: 4, name: 'Garden / Courtyard', url: '', status: 'offline' },
 ]
 
+const STORAGE_KEY = 'gvf_cctv_cameras'
+
 export function CCTVDashboard() {
-  const [cameras, setCameras] = useState(defaultCameras)
+  const [cameras, setCameras] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : defaultCameras
+    } catch {
+      return defaultCameras
+    }
+  })
   const [editingId, setEditingId] = useState(null)
   const [urlInput, setUrlInput] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cameras))
+  }, [cameras])
 
   const saveUrl = (id) => {
     setCameras(prev => prev.map(c => c.id === id ? { ...c, url: urlInput, status: urlInput ? 'live' : 'offline' } : c))

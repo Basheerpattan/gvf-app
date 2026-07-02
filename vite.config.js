@@ -3,7 +3,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 3000 },
+  server: { 
+    port: 3000,
+    allowedHosts: [
+      'could-qualified-chafe.ngrok-free.dev',
+      '.ngrok-free.dev'
+    ]
+  },
   build: {
     rollupOptions: {
       output: {
