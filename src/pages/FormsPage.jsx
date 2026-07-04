@@ -55,7 +55,7 @@ export function FormsPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
 
       {/* ── Staff Portal Header ── */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm print:hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center shrink-0">
@@ -92,7 +92,7 @@ export function FormsPage() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
 
         {/* Page title */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 print:hidden">
           <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
             <FileText size={26} className="text-emerald-700" />
           </div>
@@ -106,7 +106,7 @@ export function FormsPage() {
         </div>
 
         {/* Form type selector */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 print:hidden">
           {FORMS.map(f => {
             const Icon = f.icon
             const isActive = activeForm === f.key
@@ -140,7 +140,7 @@ export function FormsPage() {
         {/* Form card */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           {/* Form header */}
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50 print:hidden">
             <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${form.badge}`}>
               <form.icon size={16} />
             </div>
@@ -158,7 +158,7 @@ export function FormsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-6 text-xs text-slate-400 border-t border-slate-100 bg-white mt-auto">
+      <footer className="text-center py-6 text-xs text-slate-400 border-t border-slate-100 bg-white mt-auto print:hidden">
         © {new Date().getFullYear()} {settings.footer_org_name} · Staff Portal · All records are confidential
       </footer>
     </div>
