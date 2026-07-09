@@ -41,6 +41,21 @@ create table if not exists enquiries (
   created_at    timestamptz default now()
 );
 
+create table if not exists appointments (
+  id                uuid default gen_random_uuid() primary key,
+  name              text not null,
+  phone             text not null,
+  email             text,
+  appointment_type  text not null check (appointment_type in ('inpatient', 'outpatient', 'followup')),
+  preferred_date    date,
+  notes             text,
+  status            text not null default 'pending' check (status in ('pending', 'confirmed', 'cancelled', 'completed')),
+  created_at        timestamptz default now()
+);
+
+-- Safe to re-run: adds the email column for tables created before it existed
+alter table appointments add column if not exists email text;
+
 create table if not exists achievements (
   id            uuid default gen_random_uuid() primary key,
   icon          text default 'Trophy',
@@ -81,6 +96,7 @@ alter table gallery          enable row level security;
 alter table staff            enable row level security;
 alter table reviews          enable row level security;
 alter table enquiries        enable row level security;
+alter table appointments     enable row level security;
 alter table achievements     enable row level security;
 alter table form_questions   enable row level security;
 alter table form_submissions enable row level security;
@@ -122,6 +138,10 @@ begin
         create policy "Public can submit enquiries" on enquiries for insert with check (true);
     end if;
 
+    if not exists (select 1 from pg_policies where policyname = 'Public can submit appointments' and tablename = 'appointments') then
+        create policy "Public can submit appointments" on appointments for insert with check (true);
+    end if;
+
     if not exists (select 1 from pg_policies where policyname = 'Public can submit reviews' and tablename = 'reviews') then
         create policy "Public can submit reviews" on reviews for insert with check (true);
     end if;
@@ -145,6 +165,10 @@ begin
 
     if not exists (select 1 from pg_policies where policyname = 'Admin full access enquiries' and tablename = 'enquiries') then
         create policy "Admin full access enquiries" on enquiries for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access appointments' and tablename = 'appointments') then
+        create policy "Admin full access appointments" on appointments for all using (auth.role() = 'authenticated');
     end if;
 
     if not exists (select 1 from pg_policies where policyname = 'Admin full access achievements' and tablename = 'achievements') then

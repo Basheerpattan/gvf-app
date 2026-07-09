@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
   LayoutDashboard, Image, Users, FileText, MessageSquare, Mail,
-  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings, Phone
+  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings, Phone, CalendarCheck
 } from 'lucide-react'
 
 const navGroups = [
@@ -23,6 +23,7 @@ const navGroups = [
       { to: '/admin/dashboard/form-builder', icon: FileText, label: 'Form Builder' },
       { to: '/admin/dashboard/submissions', icon: FileText, label: 'Submissions' },
       { to: '/admin/dashboard/enquiries', icon: Mail, label: 'Enquiries' },
+      { to: '/admin/dashboard/appointments', icon: CalendarCheck, label: 'Appointments' },
     ],
   },
   {

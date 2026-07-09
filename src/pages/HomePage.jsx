@@ -7,6 +7,7 @@ import { Staff }         from '../components/public/Staff'
 import { Reviews }       from '../components/public/Reviews'
 import { Contact }       from '../components/public/Contact'
 import { Footer }        from '../components/public/Footer'
+import { ChatbotWidget } from '../components/public/ChatbotWidget'
 
 export function HomePage() {
   return (
@@ -22,6 +23,7 @@ export function HomePage() {
         <Contact />
       </main>
       <Footer />
+      <ChatbotWidget />
     </>
   )
 }
