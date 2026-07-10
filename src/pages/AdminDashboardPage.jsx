@@ -8,6 +8,7 @@ import { SiteSettingsManager } from '../components/admin/SiteSettingsManager'
 import { ContactSettings } from '../components/admin/ContactSettings'
 import { GalleryManager } from '../components/admin/GalleryManager'
 import { StaffManager } from '../components/admin/StaffManager'
+import { StaffAttendanceManager } from '../components/admin/StaffAttendanceManager'
 import { FormBuilder } from '../components/admin/FormBuilder'
 import { FormSubmissions } from '../components/admin/FormSubmissions'
 import { EnquiriesManager } from '../components/admin/EnquiriesManager'
@@ -68,6 +69,7 @@ export function AdminDashboardPage() {
             <Route path="contact" element={<ContactSettings />} />
             <Route path="gallery" element={<GalleryManager />} />
             <Route path="staff" element={<StaffManager />} />
+            <Route path="attendance" element={<StaffAttendanceManager />} />
             <Route path="form-builder" element={<FormBuilder />} />
             <Route path="submissions" element={<FormSubmissions />} />
             <Route path="enquiries" element={<EnquiriesManager />} />

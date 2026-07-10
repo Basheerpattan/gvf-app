@@ -6,7 +6,7 @@ import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 import { useForm } from 'react-hook-form'
 
-const emptyForm = { name: '', designation: '', bio: '', display_order: 0 }
+const emptyForm = { name: '', designation: '', bio: '', display_order: 0, monthly_salary: 0 }
 
 export function StaffManager() {
   const [staff, setStaff] = useState([])
@@ -38,7 +38,7 @@ export function StaffManager() {
     setEditing(member)
     setPhotoPreview(member.photo_url || null)
     setPhotoFile(null)
-    reset({ name: member.name, designation: member.designation, bio: member.bio || '', display_order: member.display_order || 0 })
+    reset({ name: member.name, designation: member.designation, bio: member.bio || '', display_order: member.display_order || 0, monthly_salary: member.monthly_salary || 0 })
     setModalOpen(true)
   }
 
@@ -180,10 +180,18 @@ export function StaffManager() {
               className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Display Order</label>
-            <input type="number" {...register('display_order', { valueAsNumber: true })} min={0}
-              className="w-24 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          <div className="flex gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Display Order</label>
+              <input type="number" {...register('display_order', { valueAsNumber: true })} min={0}
+                className="w-24 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Monthly Salary (₹)</label>
+              <input type="number" {...register('monthly_salary', { valueAsNumber: true })} min={0} step="0.01"
+                placeholder="e.g. 25000"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2">

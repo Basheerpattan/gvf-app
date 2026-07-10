@@ -21,6 +21,19 @@ create table if not exists staff (
   created_at    timestamptz default now()
 );
 
+-- Safe to re-run: adds monthly salary for attendance-based salary calculation
+alter table staff add column if not exists monthly_salary numeric default 0;
+
+create table if not exists staff_attendance (
+  id          uuid default gen_random_uuid() primary key,
+  staff_id    uuid not null references staff(id) on delete cascade,
+  date        date not null,
+  status      text not null default 'present' check (status in ('present', 'absent', 'half_day', 'leave')),
+  notes       text,
+  created_at  timestamptz default now(),
+  unique (staff_id, date)
+);
+
 create table if not exists reviews (
   id          uuid default gen_random_uuid() primary key,
   name        text not null,
@@ -101,6 +114,7 @@ alter table achievements     enable row level security;
 alter table form_questions   enable row level security;
 alter table form_submissions enable row level security;
 alter table site_settings    enable row level security;
+alter table staff_attendance enable row level security;
 
 -- ============================================================
 -- SAFE CONDITIONAL POLICIES 
@@ -185,6 +199,10 @@ begin
 
     if not exists (select 1 from pg_policies where policyname = 'Admin full access site_settings' and tablename = 'site_settings') then
         create policy "Admin full access site_settings" on site_settings for all using (auth.role() = 'authenticated');
+    end if;
+
+    if not exists (select 1 from pg_policies where policyname = 'Admin full access staff_attendance' and tablename = 'staff_attendance') then
+        create policy "Admin full access staff_attendance" on staff_attendance for all using (auth.role() = 'authenticated');
     end if;
 end
 $$;
