@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
-import { Plus, Pencil, Trash2, Trophy, Loader2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Trophy, Loader2, Image as ImageIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 import { useForm } from 'react-hook-form'
@@ -15,6 +15,9 @@ export function AchievementsManager() {
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [imageFile, setImageFile] = useState(null)
+  const fileRef = useRef()
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
   const load = () => {
@@ -25,22 +28,46 @@ export function AchievementsManager() {
 
   const openAdd = () => {
     setEditing(null)
+    setImagePreview(null)
+    setImageFile(null)
     reset({ icon: 'Trophy', display_order: items.length })
     setModalOpen(true)
   }
   const openEdit = (item) => {
     setEditing(item)
+    setImagePreview(item.image_url || null)
+    setImageFile(null)
     reset(item)
     setModalOpen(true)
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 2 * 1024 * 1024) { toast.error('Image must be under 2MB'); return }
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
   const onSubmit = async (data) => {
     setSaving(true)
+    let image_url = editing?.image_url || null
+
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop()
+      const path = `achievements/${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('images').upload(path, imageFile)
+      if (upErr) { toast.error('Image upload failed'); setSaving(false); return }
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(path)
+      image_url = publicUrl
+    }
+
+    const payload = { ...data, image_url }
     let error
     if (editing) {
-      ({ error } = await supabase.from('achievements').update(data).eq('id', editing.id))
+      ({ error } = await supabase.from('achievements').update(payload).eq('id', editing.id))
     } else {
-      ({ error } = await supabase.from('achievements').insert(data))
+      ({ error } = await supabase.from('achievements').insert(payload))
     }
     setSaving(false)
     if (error) { toast.error('Save failed'); return }
@@ -73,13 +100,18 @@ export function AchievementsManager() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(item => (
             <div key={item.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-              <div className="flex items-start justify-between">
-                <div>
+              <div className="flex items-start justify-between gap-3">
+                {item.image_url && (
+                  <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
                   <div className="text-3xl font-bold text-emerald-600 font-display mb-1">{item.value}</div>
                   <div className="font-semibold text-slate-800">{item.title}</div>
                   <div className="text-slate-400 text-sm mt-1">{item.description}</div>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 shrink-0">
                   <button onClick={() => openEdit(item)} className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors">
                     <Pencil size={15} />
                   </button>
@@ -103,6 +135,24 @@ export function AchievementsManager() {
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Achievement' : 'Add Achievement'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Image (optional)</label>
+            <div className="flex items-center gap-4">
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="w-20 h-20 rounded-xl bg-slate-100 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 border-dashed border-slate-300 flex items-center justify-center"
+              >
+                {imagePreview
+                  ? <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  : <ImageIcon size={24} className="text-slate-400" />
+                }
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              <button type="button" onClick={() => fileRef.current?.click()} className="text-sm text-emerald-600 hover:underline">
+                {imagePreview ? 'Change image' : 'Upload image'}
+              </button>
+            </div>
+          </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Value <span className="text-red-500">*</span></label>

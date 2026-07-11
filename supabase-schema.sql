@@ -78,6 +78,9 @@ create table if not exists achievements (
   display_order int  default 0
 );
 
+-- Safe to re-run: adds optional image for achievement cards
+alter table achievements add column if not exists image_url text;
+
 create table if not exists form_questions (
   id            uuid default gen_random_uuid() primary key,
   form_type     text not null check (form_type in ('inpatient', 'outpatient', 'followup')),

@@ -77,9 +77,15 @@ export function Achievements() {
             const Icon = iconMap[item.icon] || Trophy
             return (
               <div key={i} className="group bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/20 transition-all hover:-translate-y-1">
-                <div className="w-12 h-12 bg-emerald-500/30 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-500/50 transition-colors">
-                  <Icon size={24} className="text-emerald-300" />
-                </div>
+                {item.image_url ? (
+                  <div className="w-12 h-12 rounded-xl overflow-hidden mx-auto mb-4">
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 bg-emerald-500/30 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-500/50 transition-colors">
+                    <Icon size={24} className="text-emerald-300" />
+                  </div>
+                )}
                 <div className="text-3xl sm:text-4xl font-bold text-white font-display mb-2">
                   <Counter target={item.value} />
                 </div>
