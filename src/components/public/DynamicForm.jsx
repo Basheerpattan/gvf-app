@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 import { Loader } from '../ui/Loader'
-import { Send, CheckCircle, Printer } from 'lucide-react'
+import { Send, CheckCircle, Printer, Download } from 'lucide-react'
+import { jsPDF } from 'jspdf'
 
 const FORM_TITLES = {
   inpatient: 'Inpatient Admission Form',
@@ -64,6 +65,53 @@ export function DynamicForm({ formType, title, description }) {
   const printTitle = title || FORM_TITLES[formType] || 'Patient Form'
   const handlePrint = () => window.print()
 
+  const handleDownloadPdf = (answers) => {
+    const doc = new jsPDF({ unit: 'pt' })
+    const margin = 40
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    let y = margin
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.text(printTitle, margin, y)
+    y += 20
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text(`Printed on ${new Date().toLocaleString()}`, margin, y)
+    doc.setTextColor(0)
+    y += 30
+
+    questions.forEach(q => {
+      const value = answers?.[q.id]
+      const display = Array.isArray(value) ? value.join(', ') : (value ?? '') || '—'
+
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      const questionLines = doc.splitTextToSize(q.question, pageWidth - margin * 2)
+      if (y + questionLines.length * 14 + 40 > pageHeight - margin) {
+        doc.addPage()
+        y = margin
+      }
+      doc.text(questionLines, margin, y)
+      y += questionLines.length * 14 + 4
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(11)
+      const answerLines = doc.splitTextToSize(String(display), pageWidth - margin * 2)
+      if (y + answerLines.length * 14 + 20 > pageHeight - margin) {
+        doc.addPage()
+        y = margin
+      }
+      doc.text(answerLines, margin, y)
+      y += answerLines.length * 14 + 16
+    })
+
+    doc.save(`${formType}-form-${Date.now()}.pdf`)
+  }
+
   if (loading) return <div className="flex justify-center py-12"><Loader /></div>
 
   if (submitted) {
@@ -82,6 +130,12 @@ export function DynamicForm({ formType, title, description }) {
               className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 border border-slate-200 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors"
             >
               <Printer size={16} /> Print
+            </button>
+            <button
+              onClick={() => handleDownloadPdf(submittedAnswers)}
+              className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 border border-slate-200 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors"
+            >
+              <Download size={16} /> Download PDF
             </button>
           </div>
         </div>
@@ -188,6 +242,14 @@ export function DynamicForm({ formType, title, description }) {
         >
           <Printer size={18} />
           Print
+        </button>
+        <button
+          type="button"
+          onClick={() => handleDownloadPdf(liveAnswers)}
+          className="flex items-center justify-center gap-2 px-6 py-3.5 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50 transition-colors text-base"
+        >
+          <Download size={18} />
+          Download PDF
         </button>
       </div>
     </form>
