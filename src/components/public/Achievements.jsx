@@ -76,9 +76,9 @@ export function Achievements() {
           {items.map((item, i) => {
             const Icon = iconMap[item.icon] || Trophy
             return (
-              <div key={i} className="group bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/20 transition-all hover:-translate-y-1">
+              <div key={i} className="group bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/20 transition-all hover:-translate-y-1 overflow-hidden">
                 {item.image_url ? (
-                  <div className="w-12 h-12 rounded-xl overflow-hidden mx-auto mb-4">
+                  <div className="-mx-6 -mt-6 mb-4 h-32 sm:h-40 overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
                   </div>
                 ) : (
