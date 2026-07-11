@@ -71,9 +71,33 @@ export function AppointmentsManager() {
     }
   }
 
+  const notifySms = async (appointment) => {
+    if (!appointment.phone) return
+    try {
+      const res = await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: appointment.phone,
+          name: appointment.name,
+          appointmentType: appointment.appointment_type,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) throw new Error(data.error || 'SMS failed')
+      toast.success('Confirmation SMS sent to patient')
+    } catch (err) {
+      console.error('[AppointmentsManager] send-sms failed:', err)
+      toast.error('Status updated, but confirmation SMS could not be sent')
+    }
+  }
+
   const handleAccept = async (appointment) => {
     const ok = await updateStatus(appointment.id, 'confirmed')
-    if (ok) await notifyEmail(appointment)
+    if (ok) {
+      await notifyEmail(appointment)
+      await notifySms(appointment)
+    }
   }
 
   const handleReject = async (appointment) => {
