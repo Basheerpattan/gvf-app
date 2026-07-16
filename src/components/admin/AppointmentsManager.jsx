@@ -113,6 +113,9 @@ export function AppointmentsManager() {
                     <span className={`text-xs px-2 py-0.5 rounded-lg capitalize ${statusColors[a.status]}`}>
                       {a.status}
                     </span>
+                    {a.reminder_sent && (
+                      <span className="text-xs px-2 py-0.5 rounded-lg bg-sky-100 text-sky-700">Reminder sent</span>
+                    )}
                   </div>
                   <div className="text-sm text-slate-500">
                     {a.phone}{a.email && ` · ${a.email}`}

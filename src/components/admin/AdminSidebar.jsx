@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
   LayoutDashboard, Image, Users, FileText, MessageSquare, Mail,
-  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings, Phone, CalendarCheck, IndianRupee
+  Video, Trophy, LogOut, Leaf, ChevronLeft, ChevronRight, Settings, Phone, CalendarCheck, IndianRupee, UserRound
 } from 'lucide-react'
 
 const navGroups = [
@@ -14,6 +14,7 @@ const navGroups = [
       { to: '/admin/dashboard/contact', icon: Phone, label: 'Contact Details' },
       { to: '/admin/dashboard/gallery', icon: Image, label: 'Gallery' },
       { to: '/admin/dashboard/staff', icon: Users, label: 'Staff' },
+      { to: '/admin/dashboard/patients', icon: UserRound, label: 'Patients' },
       { to: '/admin/dashboard/attendance', icon: IndianRupee, label: 'Attendance & Salary' },
       { to: '/admin/dashboard/achievements', icon: Trophy, label: 'Achievements' },
     ],

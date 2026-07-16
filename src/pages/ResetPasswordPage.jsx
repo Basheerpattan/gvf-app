@@ -34,17 +34,24 @@ export function ResetPasswordPage() {
 
   const onSubmit = async ({ password }) => {
     setLoading(true)
-    const { error } = await supabase.auth.updateUser({ password })
-    setLoading(false)
+    const { data, error } = await supabase.auth.updateUser({ password })
 
     if (error) {
+      setLoading(false)
       toast.error(error.message || 'Could not update password. Please try again.')
       return
     }
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .maybeSingle()
+
+    setLoading(false)
     toast.success('Password updated. Please sign in with your new password.')
     await supabase.auth.signOut()
-    navigate('/admin')
+    navigate(profile?.role === 'guardian' ? '/guardian' : '/admin')
   }
 
   return (
@@ -55,7 +62,7 @@ export function ResetPasswordPage() {
             <Leaf size={32} className="text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800 font-display">Set a New Password</h1>
-          <p className="text-slate-500 text-sm mt-1">Green Valley Foundation — Staff & Admin Portal</p>
+          <p className="text-slate-500 text-sm mt-1">Green Valley Foundation</p>
         </div>
 
         {!ready ? (

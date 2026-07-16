@@ -13,6 +13,8 @@ import { FormBuilder } from '../components/admin/FormBuilder'
 import { FormSubmissions } from '../components/admin/FormSubmissions'
 import { EnquiriesManager } from '../components/admin/EnquiriesManager'
 import { AppointmentsManager } from '../components/admin/AppointmentsManager'
+import { PatientsManager } from '../components/admin/PatientsManager'
+import { PatientDetail } from '../components/admin/PatientDetail'
 import { ReviewsManager } from '../components/admin/ReviewsManager'
 import { AchievementsManager } from '../components/admin/AchievementsManager'
 import { CCTVDashboard } from '../components/admin/CCTVDashboard'
@@ -74,6 +76,8 @@ export function AdminDashboardPage() {
             <Route path="submissions" element={<FormSubmissions />} />
             <Route path="enquiries" element={<EnquiriesManager />} />
             <Route path="appointments" element={<AppointmentsManager />} />
+            <Route path="patients" element={<PatientsManager />} />
+            <Route path="patients/:id" element={<PatientDetail />} />
             <Route path="reviews" element={<ReviewsManager />} />
             <Route path="achievements" element={<AchievementsManager />} />
             <Route path="cctv" element={<CCTVDashboard />} />

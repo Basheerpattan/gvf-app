@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { DynamicForm } from '../components/public/DynamicForm'
 import { useAuth } from '../context/AuthContext'
 import { useSiteSettings } from '../hooks/useSiteSettings'
-import { FileText, LogOut, Leaf, ClipboardList, Users, RefreshCw } from 'lucide-react'
+import { FileText, LogOut, Leaf, ClipboardList, Users, RefreshCw, UserRound } from 'lucide-react'
 
 const FORMS = [
   {
@@ -70,6 +70,15 @@ export function FormsPage() {
               </span>
             </div>
           </div>
+
+          <nav className="flex items-center gap-1 print:hidden">
+            <Link to="/staff/forms" className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl transition-colors">
+              <FileText size={14} /> <span className="hidden sm:inline">Intake Forms</span>
+            </Link>
+            <Link to="/staff/patients" className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-700 px-3 py-2 rounded-xl hover:bg-emerald-50 transition-colors">
+              <UserRound size={14} /> <span className="hidden sm:inline">Patients</span>
+            </Link>
+          </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
             {user && (

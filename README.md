@@ -157,7 +157,11 @@ The optimized output goes to the `dist/` folder. Deploy to:
 3. In **Environment Variables**, add:
    - `VITE_SUPABASE_URL` = your Supabase URL
    - `VITE_SUPABASE_ANON_KEY` = your anon key
-4. Click **Deploy** — done!
+   - `SUPABASE_SERVICE_ROLE_KEY` = your Supabase **service_role** key (Settings → API) — **server-only**, used by `api/invite-guardian.js` to create guardian logins. Never prefix this with `VITE_` and never commit it — unlike the anon key, it bypasses Row Level Security entirely.
+   - `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` = your Brevo transactional email credentials (used by `api/send-email.js` and `api/send-reminders.js`)
+   - `BREVO_SMS_SENDER` = an SMS sender ID approved in your Brevo account — **note:** sending SMS to Indian numbers requires TRAI/DLT template registration in Brevo first, or sends will silently fail to deliver
+   - `CRON_SECRET` = any random string — Vercel automatically sends it as `Authorization: Bearer <value>` when triggering the daily reminder cron (`api/send-reminders.js`), which rejects any request without it
+4. Click **Deploy** — done! The reminder cron (`vercel.json` → `crons`) will show up under your project's **Cron Jobs** tab and runs daily at 30 2 * * * UTC (~8:00 AM IST), sending a same-day SMS/email reminder for any confirmed appointment or scheduled visit happening the next day.
 
 ---
 
@@ -215,6 +219,11 @@ The optimized output goes to the `dist/` folder. Deploy to:
 | `achievements`     | Milestone statistics (animated counters)       |
 | `form_questions`   | Dynamic form questions per form type           |
 | `form_submissions` | Patient form submission data (JSON answers)    |
+| `patients`         | Patient intake & case records                  |
+| `case_notes`       | Per-patient progress/medical/counseling notes  |
+| `patient_visits`   | Scheduled/completed patient visits             |
+| `profiles`         | Maps auth user id → role (admin/staff/guardian) |
+| `guardian_patients`| Links guardian accounts to the patient(s) they can view (read-only) |
 
 ---
 

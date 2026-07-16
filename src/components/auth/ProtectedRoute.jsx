@@ -10,10 +10,10 @@ const initialPathname = window.location.pathname
 let hasCheckedInitialLoad = false
 
 function isProtectedPath(pathname) {
-  return pathname.startsWith('/admin/dashboard') || pathname === '/staff/forms'
+  return pathname.startsWith('/admin/dashboard') || pathname === '/staff/forms' || pathname.startsWith('/staff/patients') || pathname.startsWith('/guardian/dashboard')
 }
 
-export function ProtectedRoute({ children, allowedRoles }) {
+export function ProtectedRoute({ children, allowedRoles, loginPath = '/admin' }) {
   const { user, role, loading, signOut } = useAuth()
 
   // Force logout if this protected page was reached via a browser refresh
@@ -42,9 +42,9 @@ export function ProtectedRoute({ children, allowedRoles }) {
     return <div className="flex justify-center p-10">Loading...</div>
   }
 
-  // If not logged in, redirect to the admin login page
+  // If not logged in, redirect to the appropriate login page
   if (!user) {
-    return <Navigate to="/admin" replace />
+    return <Navigate to={loginPath} replace />
   }
 
   // If the user's role is not in the list of allowed roles, redirect to home
