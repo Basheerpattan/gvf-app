@@ -15,7 +15,8 @@ export function AdminLoginPage() {
   const forgotPasswordForm = useForm()
 
   if (!authLoading && user && role) {
-    return <Navigate to={role === 'admin' ? '/admin/dashboard' : '/staff/forms'} replace />
+    const dest = role === 'admin' ? '/admin/dashboard' : role === 'guardian' ? '/guardian/dashboard' : '/staff/forms'
+    return <Navigate to={dest} replace />
   }
 
   const onSubmit = async ({ email, password }) => {
@@ -38,7 +39,8 @@ export function AdminLoginPage() {
 
     if (profile?.role === 'admin') navigate('/admin/dashboard')
     else if (profile?.role === 'staff') navigate('/staff/forms')
-    else toast.error('No role assigned to this account.')
+    else if (profile?.role === 'guardian') navigate('/guardian/dashboard')
+    else toast.error('No role assigned to this account. Check the profiles table for this account\'s row.')
   }
 
   const onForgotPasswordSubmit = async ({ email }) => {

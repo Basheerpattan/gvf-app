@@ -14,8 +14,9 @@ export function GuardianLoginPage() {
   const { register, handleSubmit } = useForm()
   const forgotPasswordForm = useForm()
 
-  if (!authLoading && user && role === 'guardian') {
-    return <Navigate to="/guardian/dashboard" replace />
+  if (!authLoading && user && role) {
+    const dest = role === 'admin' ? '/admin/dashboard' : role === 'staff' ? '/staff/forms' : '/guardian/dashboard'
+    return <Navigate to={dest} replace />
   }
 
   const onSubmit = async ({ email, password }) => {
@@ -37,9 +38,11 @@ export function GuardianLoginPage() {
     setLoading(false)
 
     if (profile?.role === 'guardian') navigate('/guardian/dashboard')
+    else if (profile?.role === 'admin') navigate('/admin/dashboard')
+    else if (profile?.role === 'staff') navigate('/staff/forms')
     else {
       await supabase.auth.signOut()
-      toast.error('This account is not registered as a family/guardian account.')
+      toast.error('No role assigned to this account. Check the profiles table for this account\'s row.')
     }
   }
 
