@@ -42,20 +42,18 @@ export default async function handler(req, res) {
       return
     }
 
-    // Re-inviting an email that already has a *confirmed* account fails with
-    // "already registered" — that's expected once the guardian has accepted
-    // a previous invite, so surface it as a friendly message instead of an error.
-    const { error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+    // The first invite already created this email's auth account, so
+    // inviteUserByEmail() would always fail with "already registered" on
+    // resend. Use the password-recovery flow instead — it works for any
+    // existing account (confirmed or not) and lands on the same
+    // /reset-password page to let the guardian set a password.
+    const { error: resendErr } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
       redirectTo: `${redirectOrigin}/reset-password`,
     })
 
-    if (inviteErr) {
-      const alreadyActive = /already registered/i.test(inviteErr.message || '')
-      res.status(alreadyActive ? 409 : 502).json({
-        error: alreadyActive
-          ? 'This guardian already has an active account. Ask them to use "Forgot password" on the login page instead.'
-          : (inviteErr.message || 'Failed to resend invite'),
-      })
+    if (resendErr) {
+      console.error('[resend-guardian-invite] resend failed:', resendErr)
+      res.status(502).json({ error: resendErr.message || 'Failed to resend invite' })
       return
     }
 
