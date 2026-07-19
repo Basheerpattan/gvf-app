@@ -22,6 +22,11 @@ export function ResetPasswordPage() {
     const errorCode = hashParams.get('error_code')
     const errorDescription = hashParams.get('error_description')
     if (hashParams.get('error')) {
+      console.error('[reset-password] Supabase link error', {
+        error: hashParams.get('error'),
+        errorCode,
+        errorDescription,
+      })
       setLinkError(
         errorCode === 'otp_expired'
           ? 'This invite link has already been used or has expired.'

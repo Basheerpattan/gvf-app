@@ -24,6 +24,8 @@ export default async function handler(req, res) {
 
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey)
 
+  console.log('[resend-guardian-invite] start', { email, redirectOrigin })
+
   try {
     const { data: existingProfile, error: lookupErr } = await supabaseAdmin
       .from('profiles')
@@ -32,15 +34,18 @@ export default async function handler(req, res) {
       .maybeSingle()
 
     if (lookupErr) {
-      console.error('[resend-guardian-invite] profile lookup failed:', lookupErr)
+      console.error('[resend-guardian-invite] profile lookup failed:', { email, message: lookupErr.message })
       res.status(500).json({ error: 'Failed to look up guardian account' })
       return
     }
 
     if (!existingProfile || existingProfile.role !== 'guardian') {
+      console.warn('[resend-guardian-invite] no guardian profile found', { email, found: existingProfile })
       res.status(404).json({ error: 'No guardian account found for this email' })
       return
     }
+
+    console.log('[resend-guardian-invite] guardian profile found, sending recovery email', { email, guardianId: existingProfile.id })
 
     // The first invite already created this email's auth account, so
     // inviteUserByEmail() would always fail with "already registered" on
@@ -52,11 +57,12 @@ export default async function handler(req, res) {
     })
 
     if (resendErr) {
-      console.error('[resend-guardian-invite] resend failed:', resendErr)
+      console.error('[resend-guardian-invite] resetPasswordForEmail failed:', { email, message: resendErr.message, status: resendErr.status })
       res.status(502).json({ error: resendErr.message || 'Failed to resend invite' })
       return
     }
 
+    console.log('[resend-guardian-invite] done, recovery email sent', { email, guardianId: existingProfile.id })
     res.status(200).json({ success: true })
   } catch (err) {
     console.error('[resend-guardian-invite] unexpected failure:', err)
