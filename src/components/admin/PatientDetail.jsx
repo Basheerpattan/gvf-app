@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
-import { ArrowLeft, Loader2, Plus, Trash2, Check, X, Pencil, UserPlus, Mail } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Check, X, Pencil, UserPlus, Mail, Send } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 
@@ -64,6 +64,7 @@ export function PatientDetail() {
   const [guardians, setGuardians] = useState([])
   const [guardianEmail, setGuardianEmail] = useState('')
   const [inviting, setInviting] = useState(false)
+  const [resendingId, setResendingId] = useState(null)
 
   const load = () => {
     setLoading(true)
@@ -118,6 +119,29 @@ export function PatientDetail() {
       toast.error(err.message)
     }
     setInviting(false)
+  }
+
+  const resendInvite = async (linkId, email) => {
+    setResendingId(linkId)
+    try {
+      const res = await fetch('/api/resend-guardian-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, redirectOrigin: window.location.origin }),
+      })
+      const raw = await res.text()
+      let data
+      try {
+        data = raw ? JSON.parse(raw) : {}
+      } catch {
+        throw new Error(`Server returned a non-JSON response (status ${res.status}). If you're running "npm run dev", the /api functions only work when deployed to Vercel (or via "vercel dev") — plain Vite doesn't run them.`)
+      }
+      if (!res.ok || !data.success) throw new Error(data.error || `Resend failed (status ${res.status})`)
+      toast.success('Invite resent')
+    } catch (err) {
+      toast.error(err.message)
+    }
+    setResendingId(null)
   }
 
   const unlinkGuardian = async (linkId) => {
@@ -274,7 +298,17 @@ export function PatientDetail() {
               {guardians.map(g => (
                 <div key={g.linkId} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-2.5">
                   <span className="text-sm text-slate-700 flex items-center gap-2"><Mail size={14} className="text-slate-400" /> {g.email}</span>
-                  <button onClick={() => unlinkGuardian(g.linkId)} className="text-xs text-red-500 hover:text-red-700 font-medium">Unlink</button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => resendInvite(g.linkId, g.email)}
+                      disabled={resendingId === g.linkId}
+                      className="text-xs text-emerald-600 hover:text-emerald-700 font-medium inline-flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {resendingId === g.linkId ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                      Resend Invite
+                    </button>
+                    <button onClick={() => unlinkGuardian(g.linkId)} className="text-xs text-red-500 hover:text-red-700 font-medium">Unlink</button>
+                  </div>
                 </div>
               ))}
             </div>

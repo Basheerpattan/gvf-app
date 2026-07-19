@@ -10,13 +10,29 @@ export function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
   const [validLink, setValidLink] = useState(false)
+  const [linkError, setLinkError] = useState(null)
   const { register, handleSubmit, watch, formState: { errors } } = useForm()
 
   useEffect(() => {
-    // Supabase reads the recovery token out of the URL and establishes a
-    // temporary session, firing a PASSWORD_RECOVERY event once it's ready.
+    // Supabase appends either a session (#access_token=...) or an error
+    // (#error=access_denied&error_code=...) to the URL hash after the
+    // invite/recovery link is verified. Surface the real reason instead of
+    // just saying "invalid or expired".
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const errorCode = hashParams.get('error_code')
+    const errorDescription = hashParams.get('error_description')
+    if (hashParams.get('error')) {
+      setLinkError(
+        errorCode === 'otp_expired'
+          ? 'This invite link has already been used or has expired.'
+          : errorDescription?.replace(/\+/g, ' ') || 'This link is invalid.'
+      )
+    }
+
+    // Supabase fires PASSWORD_RECOVERY for type=recovery links and SIGNED_IN
+    // for type=invite links, so both events indicate a valid link.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setValidLink(true)
         setReady(true)
       }
@@ -70,7 +86,7 @@ export function ResetPasswordPage() {
         ) : !validLink ? (
           <div className="text-center space-y-4">
             <p className="text-sm text-slate-600">
-              This reset link is invalid or has expired. Please request a new one from the login page.
+              {linkError || 'This reset link is invalid or has expired.'} Please ask your admin to send a new invite, or request a new one from the login page.
             </p>
             <button
               onClick={() => navigate('/admin')}
